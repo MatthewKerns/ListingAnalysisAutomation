@@ -42,6 +42,7 @@ export function createWorkflow() {
   workflow.addNode('analyzeImages', async (state: WorkflowState) => {
     return await analyzeImages(state, {
       region: config.awsRegion,
+      profile: config.awsProfile,
       accessKeyId: config.awsAccessKeyId,
       secretAccessKey: config.awsSecretAccessKey,
     });

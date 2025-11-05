@@ -66,6 +66,7 @@ export interface Config {
   gmailPassword: string;
   driveFolderId?: string;
   awsRegion: string;
-  awsAccessKeyId: string;
-  awsSecretAccessKey: string;
+  awsProfile?: string;
+  awsAccessKeyId?: string;
+  awsSecretAccessKey?: string;
 }

@@ -24,19 +24,29 @@ export async function analyzeImages(
   state: WorkflowState,
   awsConfig: {
     region: string;
-    accessKeyId: string;
-    secretAccessKey: string;
+    profile?: string;
+    accessKeyId?: string;
+    secretAccessKey?: string;
   }
 ): Promise<Partial<WorkflowState>> {
   console.log('🖼️  Analyzing images with AWS Rekognition...');
 
-  const client = new RekognitionClient({
-    region: awsConfig.region,
-    credentials: {
+  // Use profile if available, otherwise use keys
+  const clientConfig: any = { region: awsConfig.region };
+
+  if (awsConfig.profile) {
+    // When using profile, AWS SDK will automatically load credentials from ~/.aws/credentials
+    process.env.AWS_PROFILE = awsConfig.profile;
+    console.log(`  Using AWS profile: ${awsConfig.profile}`);
+  } else if (awsConfig.accessKeyId && awsConfig.secretAccessKey) {
+    clientConfig.credentials = {
       accessKeyId: awsConfig.accessKeyId,
       secretAccessKey: awsConfig.secretAccessKey,
-    },
-  });
+    };
+    console.log('  Using AWS access keys');
+  }
+
+  const client = new RekognitionClient(clientConfig);
 
   const imageAnalysis = new Map(state.imageAnalysis);
   const errors = [...state.errors];
