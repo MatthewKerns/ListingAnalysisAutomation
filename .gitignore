@@ -34,3 +34,8 @@ Thumbs.db
 # Output files
 output/
 results/
+test-output.json
+
+# Test coverage
+coverage/
+.vitest/

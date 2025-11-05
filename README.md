@@ -220,6 +220,45 @@ npm run build
 npm start
 ```
 
+## 🧪 Testing
+
+### Run All Tests
+
+```bash
+npm test
+```
+
+### Run Tests in Watch Mode
+
+```bash
+npm run test:watch
+```
+
+### Generate Coverage Report
+
+```bash
+npm run test:coverage
+```
+
+### Manual Integration Test
+
+Test Firecrawl scraping with your API key:
+
+```bash
+npm run test:manual
+```
+
+**Test Coverage:**
+- ✅ Firecrawl Amazon parser (HTML/Markdown parsing)
+- ✅ Google Sheets ASIN reader
+- ✅ Firecrawl workflow node
+- ✅ AWS Rekognition image analysis
+- ✅ ChatGPT analysis and insights
+- ✅ Email and Google Drive output
+- ✅ Configuration loader
+
+See `TESTING.md` for detailed testing guide.
+
 ## 📅 Cron Schedule Examples
 
 Edit `CRON_SCHEDULE` in `.env`:
