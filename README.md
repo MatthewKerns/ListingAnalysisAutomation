@@ -91,8 +91,11 @@ OPENAI_API_KEY=sk-your-openai-key-here
 
 # AWS Configuration
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your-aws-access-key
-AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+# Option 1: Use AWS CLI profile (recommended)
+AWS_PROFILE=your_aws_profile_name
+# Option 2: Use access keys directly
+# AWS_ACCESS_KEY_ID=your-aws-access-key
+# AWS_SECRET_ACCESS_KEY=your-aws-secret-key
 
 # Google Sheets Configuration
 GOOGLE_SHEET_ID=your-google-sheet-id
@@ -240,12 +243,19 @@ npm run test:watch
 npm run test:coverage
 ```
 
-### Manual Integration Test
+### Manual Integration Tests
 
-Test Firecrawl scraping with your API key:
+Test individual components with your API keys:
 
 ```bash
+# Test Firecrawl scraping only
 npm run test:manual
+
+# Test full workflow: Scrape → Rekognition → ChatGPT
+npm run test:workflow
+
+# Test OpenAI analysis only (with mock data)
+npm run test:openai-only
 ```
 
 **Test Coverage:**
@@ -304,20 +314,24 @@ Saves a JSON file with full analysis data:
 - Rating & review count
 - Bullet points
 - Description
-- Product images (up to 15 per listing)
+- Product images (ALL images: main, gallery, and A+ content)
 
 ### Image Analysis (AWS Rekognition)
 - Object/scene labels (confidence scores)
-- Text detection in images
+- Text detection in images (critical for Rufus AI)
 - Face detection
 - Content moderation (inappropriate content)
+- Visual context analysis
 
-### GPT-4 Analysis
-- Competitive pricing insights
-- Title optimization patterns
-- Bullet point effectiveness
-- Image quality assessment
-- Actionable recommendations
+### GPT-4 Analysis (Rufus AI & COSMO Optimized)
+- **What Amazon AI Actually Sees**: Rekognition's detected labels and text
+- **Target Audience Identification**: Based on visual + textual signals
+- **Rufus Optimization**: Multimodal AI recommendations
+- Visual Label Tagging (VLT) opportunities
+- Semantic search optimization (NPO, intent-driven content)
+- Backend attribute enrichment recommendations
+- Competitive pricing and positioning insights
+- Image quality and visual consistency analysis
 
 ## 🛠️ Project Structure
 
@@ -330,7 +344,7 @@ ListingAnalysisAutomation/
 │   │   ├── googleSheets.ts        # Read ASINs from Sheets
 │   │   ├── firecrawl.ts           # Scrape listings
 │   │   ├── rekognition.ts         # Analyze images
-│   │   ├── chatgpt.ts             # GPT-4 analysis
+│   │   ├── chatgpt.ts             # GPT-4 analysis (Rufus optimized)
 │   │   └── output.ts              # Email & Drive output
 │   ├── types/
 │   │   └── index.ts               # TypeScript types
@@ -338,7 +352,14 @@ ListingAnalysisAutomation/
 │   │   └── config.ts              # Config loader
 │   ├── workflow.ts                # LangGraph workflow
 │   ├── index.ts                   # Main entry point
-│   └── scheduler.ts               # Cron scheduler
+│   ├── scheduler.ts               # Cron scheduler
+│   ├── test.ts                    # Firecrawl integration test
+│   ├── test-workflow.ts           # Full workflow test
+│   └── test-openai-only.ts        # OpenAI API test
+├── tests/
+│   ├── unit/                      # Unit tests (Vitest)
+│   ├── fixtures/                  # Test data
+│   └── mocks/                     # Mock implementations
 ├── credentials/
 │   └── google-credentials.json    # Google service account (gitignored)
 ├── .env                           # Environment variables (gitignored)
