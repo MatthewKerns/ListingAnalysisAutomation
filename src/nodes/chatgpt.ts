@@ -40,43 +40,86 @@ export async function analyzeWithGPT(
       })),
     }));
 
-    const prompt = `You are an Amazon listing optimization expert. Analyze the following product listings and image analysis data to provide actionable insights.
+    const prompt = `You are an Amazon listing optimization expert specializing in Rufus AI and COSMO optimization. Analyze the following product listings and AWS Rekognition image analysis data to determine:
+
+1. **What Amazon AI Actually Sees** - Based on Rekognition's object/label detection and text recognition
+2. **Target Audience Identification** - Who should buy this product based on ALL available signals
+3. **Rufus Optimization Opportunities** - How to improve discoverability through Amazon's multimodal AI
 
 # Product Listings Data
 ${JSON.stringify(listingsData, null, 2)}
 
-# Image Analysis Data
+# AWS Rekognition Image Analysis
 ${JSON.stringify(imageAnalysisData, null, 2)}
 
-Please provide a comprehensive analysis in the following format:
+---
+
+# ANALYSIS FRAMEWORK
 
 ## Summary
-Provide a 2-3 paragraph executive summary of the overall findings.
+Provide a 2-3 paragraph executive summary that includes:
+- What Amazon's AI (Rekognition + Rufus) actually detects in these listings
+- The primary target audience based on visual + textual signals
+- Overall optimization opportunities for semantic/intent-driven search
+
+## What Amazon AI Sees in Your Listing
+Based on AWS Rekognition analysis, describe:
+- **Visual Labels Detected**: Top 5-10 objects/scenes Amazon AI identifies in product images
+- **Text in Images**: What text overlays or labels Rekognition detected (critical for Rufus)
+- **Visual Context**: Lifestyle/usage scenes vs. product-only shots
+- **Multimodal Signals**: How visual content aligns (or conflicts) with text content
+- **Missing Visual Signals**: What Amazon AI SHOULD see but doesn't (e.g., usage context, target demographic, key features)
+
+## Target Audience Analysis
+Based on ALL data (text + images + Rekognition analysis), identify:
+- **Primary Target Demographic**: Age, lifestyle, use case
+- **Buyer Intent Signals**: What problems they're solving, why they search for this
+- **Visual Persona Match**: Whether images show/suggest the right target audience
+- **Semantic Search Alignment**: Keywords + visual context that match how target audience shops
+- **Purchase Motivation**: Functional vs. emotional drivers based on visual + textual content
 
 ## Competitive Insights
-List 5-7 key competitive insights based on comparing the listings. Include:
+List 5-7 key competitive insights:
 - Pricing strategies
-- Title optimization patterns
-- Bullet point effectiveness
-- Review velocity and ratings comparison
+- Title optimization for semantic search (not keyword stuffing)
+- Bullet point effectiveness and benefit-driven content
+- Review velocity and social proof
+- Visual differentiation vs. competitors
 
-## Recommendations
-Provide 7-10 specific, actionable recommendations for improving the listings, including:
-- Title optimization suggestions
-- Bullet point improvements
-- Pricing adjustments
-- Image quality and content recommendations
-- Description enhancements
+## Recommendations (Rufus & COSMO Optimized)
+Provide 7-10 specific, actionable recommendations:
+
+### Visual Optimization (Rufus Multimodal AI)
+- Text overlays to add to images (e.g., "Waterproof up to 50m", "BPA-Free")
+- Lifestyle images showing target audience using product
+- Missing visual context Amazon AI should detect
+
+### Content Optimization (Semantic Search)
+- Noun Phrase Optimization (NPO): Structured, benefit-driven descriptions
+- Intent-driven bullet points (why people buy, not just features)
+- Q&A opportunities to answer Rufus queries
+
+### Backend Attribute Enrichment
+- Structured attributes for facet search visibility
+- Unstructured enrichment for semantic matching
+- Recommended attribute fields to complete
 
 ## Image Quality Analysis
-Analyze the image analysis data and provide insights on:
-- Overall image quality and professionalism
-- Text overlay usage and effectiveness
-- Visual consistency across listings
-- Opportunities for improvement
-- Any concerning moderation flags
+Deep dive on visual content:
+- **Text Overlays**: Current usage and recommendations for Visual Label Tagging (VLT)
+- **Rekognition Confidence Scores**: Image clarity and object recognition quality
+- **Visual Consistency**: Across main, secondary, and A+ content images
+- **Moderation Flags**: Any concerning labels detected
+- **Optimization Priority**: Which images to replace/enhance first
 
-Keep your analysis practical, data-driven, and focused on improving conversion rates and sales.`;
+---
+
+Keep your analysis practical, data-driven, and focused on:
+1. **What Amazon AI actually sees** (based on Rekognition data)
+2. **Who should buy this** (target audience from all signals)
+3. **How to optimize for Rufus** (multimodal semantic search)
+
+Remember: Rufus uses text + images + metadata. Your recommendations should leverage all three signals.`;
 
     console.log('  Sending analysis request to GPT-4...');
     const response = await llm.invoke(prompt);
