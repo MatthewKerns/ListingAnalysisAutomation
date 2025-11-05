@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:manual": "tsx src/test.ts"
+    "test:manual": "tsx src/test.ts",
+    "test:workflow": "tsx src/test-workflow.ts"
   },
   "keywords": [
     "amazon",
