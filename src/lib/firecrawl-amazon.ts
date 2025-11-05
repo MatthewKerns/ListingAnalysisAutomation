@@ -30,7 +30,7 @@ export interface ParsedAmazonProduct {
   description: string;
   images: Array<{
     url: string;
-    type: 'main' | 'secondary';
+    type: 'main' | 'secondary' | 'aplus';
     position: number;
   }>;
   parsedAt: string;
@@ -265,61 +265,100 @@ export async function parseAmazonListing(
     }
 
     // ====================================================================
-    // Extract Images
+    // Extract Images (ALL: Main, Secondary, A+ Content)
     // ====================================================================
-    const images: Array<{ url: string; type: 'main' | 'secondary'; position: number }> = [];
+    const images: Array<{ url: string; type: 'main' | 'secondary' | 'aplus'; position: number }> = [];
     const imageBaseIds = new Map<string, string>();
 
-    // PRIORITY 1: imageBlock section
-    const imageBlockMatch = html.match(
-      /<div[^>]*id="imageBlock"[^>]*>([\s\S]*?)<\/div>/i
-    );
+    // Extract ALL Amazon image URLs from HTML and Markdown
+    // This captures: main image, gallery images, A+ content images, detail images
+    const imagePattern = /https?:\/\/(?:m\.media-amazon\.com|images-na\.ssl-images-amazon\.com)\/images\/I\/([A-Za-z0-9\+_-]+)\.?[^"\s)']*/g;
 
-    if (imageBlockMatch) {
-      const imageSection = imageBlockMatch[1];
-      const imagePattern = /https:\/\/m\.media-amazon\.com\/images\/I\/([A-Za-z0-9\+_-]+)\./g;
-      const matches = imageSection.matchAll(imagePattern);
+    // Search HTML for all image URLs
+    const htmlMatches = html.matchAll(imagePattern);
+    for (const match of htmlMatches) {
+      const fullUrl = match[0];
+      const baseId = match[1];
 
-      for (const match of matches) {
-        const fullUrl = match[0];
-        const baseId = match[1];
+      if (!imageBaseIds.has(baseId)) {
+        imageBaseIds.set(baseId, fullUrl);
+      }
+    }
 
-        if (!imageBaseIds.has(baseId)) {
-          imageBaseIds.set(baseId, fullUrl);
+    // Search Markdown for all image URLs
+    const markdownMatches = markdown.matchAll(imagePattern);
+    for (const match of markdownMatches) {
+      const fullUrl = match[0];
+      const baseId = match[1];
+
+      if (!imageBaseIds.has(baseId)) {
+        imageBaseIds.set(baseId, fullUrl);
+      }
+    }
+
+    // Try to identify main image from specific sections
+    let mainImageId: string | null = null;
+    const mainImageMatch = html.match(/id=["']landingImage["'][^>]*src=["']https?:\/\/[^"']*\/I\/([A-Za-z0-9\+_-]+)\./i);
+    if (mainImageMatch) {
+      mainImageId = mainImageMatch[1];
+    }
+
+    // If no main image identified, use first image
+    if (!mainImageId && imageBaseIds.size > 0) {
+      mainImageId = Array.from(imageBaseIds.keys())[0];
+    }
+
+    // Try to identify A+ content images (usually in aplus sections)
+    const aplusImageIds = new Set<string>();
+    const aplusMatch = html.match(/<div[^>]*(?:id|class)=["'][^"']*(?:aplus|a-plus|premium)[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi);
+    if (aplusMatch) {
+      for (const section of aplusMatch) {
+        const aplusImages = section.matchAll(/\/I\/([A-Za-z0-9\+_-]+)\./g);
+        for (const match of aplusImages) {
+          aplusImageIds.add(match[1]);
         }
       }
     }
 
-    // PRIORITY 2: Fallback to all images
-    if (imageBaseIds.size === 0) {
-      const imagePattern = /https:\/\/m\.media-amazon\.com\/images\/I\/([A-Za-z0-9\+_-]+)\./g;
-      const markdownMatches = markdown.matchAll(imagePattern);
-      const htmlMatches = html.matchAll(imagePattern);
+    // Filter out non-image URLs (CSS, JS files mistakenly captured)
+    const filteredImages = Array.from(imageBaseIds.entries()).filter(([baseId, url]) => {
+      // Skip URLs that are clearly not images
+      if (url.includes('.css') || url.includes('.js') || url.includes('.html')) return false;
+      if (url.includes('AUIClients/') && !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) return false;
+      return true;
+    });
 
-      for (const match of markdownMatches) {
-        const fullUrl = match[0];
-        const baseId = match[1];
-        if (!imageBaseIds.has(baseId)) {
-          imageBaseIds.set(baseId, fullUrl);
+    // Convert to high-res URLs and categorize (no limit - get ALL images)
+    filteredImages.forEach(([baseId, url], index) => {
+      // Fix incomplete URLs and ensure high-res format
+      let fixedUrl = url;
+      if (url.endsWith('.') && !url.includes('._')) {
+        // URL like "https://m.media-amazon.com/images/I/41YxhSU+q9L."
+        fixedUrl = url + '_AC_SL1500_.jpg';
+      } else if (url.match(/\._[A-Z0-9_]+\./)) {
+        // URL already has variant like "._AC_UL320_."
+        fixedUrl = url.replace(/\._[A-Z0-9_]+\./, '._AC_SL1500_.');
+        if (!fixedUrl.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          fixedUrl += 'jpg';
+        }
+      } else {
+        // URL might be missing extension entirely
+        if (!fixedUrl.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          fixedUrl += '.jpg';
         }
       }
 
-      for (const match of htmlMatches) {
-        const fullUrl = match[0];
-        const baseId = match[1];
-        if (!imageBaseIds.has(baseId)) {
-          imageBaseIds.set(baseId, fullUrl);
-        }
+      // Determine image type
+      let imageType: 'main' | 'secondary' | 'aplus' = 'secondary';
+      if (baseId === mainImageId) {
+        imageType = 'main';
+      } else if (aplusImageIds.has(baseId)) {
+        imageType = 'aplus';
       }
-    }
 
-    // Convert to high-res URLs (limit to 15)
-    const imageUrls = Array.from(imageBaseIds.values()).slice(0, 15);
-    imageUrls.forEach((url, index) => {
-      const highResUrl = url.replace(/\._[A-Z0-9_]+\./, "._AC_SL1500_.");
       images.push({
-        url: highResUrl,
-        type: index === 0 ? "main" : "secondary",
+        url: fixedUrl,
+        type: imageType,
         position: index + 1,
       });
     });
