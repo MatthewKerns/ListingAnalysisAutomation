@@ -306,6 +306,43 @@ Saves a JSON file with full analysis data:
 - Filename: `listing-analysis-YYYY-MM-DD.json`
 - Contains: All scraped data, image analysis, GPT insights
 
+## 📚 Documentation
+
+### Getting Started
+- **[README](./README.md)** - This file (quick start guide)
+- **[SETUP.md](./SETUP.md)** - Detailed step-by-step setup instructions
+- **[TESTING.md](./TESTING.md)** - Testing guide and strategies
+
+### System Design
+- **[Architecture](./docs/ARCHITECTURE.md)** - System architecture and components
+- **[Data Extraction](./docs/DATA_EXTRACTION.md)** - Firecrawl scraping strategy
+- **[Image Analysis](./docs/IMAGE_ANALYSIS.md)** - AWS Rekognition approach
+- **[AI Analysis](./docs/AI_ANALYSIS.md)** - ChatGPT/Rufus/COSMO optimization
+- **[Workflow](./docs/WORKFLOW.md)** - LangGraph orchestration details
+- **[Future Enhancements](./docs/FUTURE_ENHANCEMENTS.md)** - Roadmap and expansion plans
+
+## 🎯 Use Cases
+
+This system provides value for:
+
+### 1. Product R&D
+- Identify feature gaps vs. competitors
+- Discover customer pain points from reviews
+- Generate product improvement ideas
+- Prioritize development roadmap
+
+### 2. Marketing & Branding
+- Optimize copy effectiveness
+- Improve visual presentation
+- Refine positioning and differentiation
+- Strengthen brand messaging
+
+### 3. Amazon AI Optimization
+- Maximize Rufus AI discoverability
+- Align with COSMO semantic search
+- Optimize for multimodal AI
+- Increase search visibility
+
 ## 🔍 What Gets Analyzed
 
 ### Listing Data (Firecrawl)
@@ -332,6 +369,8 @@ Saves a JSON file with full analysis data:
 - Backend attribute enrichment recommendations
 - Competitive pricing and positioning insights
 - Image quality and visual consistency analysis
+- **Product R&D Recommendations**: Feature improvements and innovation opportunities
+- **Marketing Recommendations**: Copy, visuals, and branding optimization
 
 ## 🛠️ Project Structure
 
